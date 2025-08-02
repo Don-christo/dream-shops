@@ -13,7 +13,6 @@ import java.sql.Blob;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
