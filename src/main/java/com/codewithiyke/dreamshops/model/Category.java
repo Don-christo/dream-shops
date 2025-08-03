@@ -1,12 +1,11 @@
 package com.codewithiyke.dreamshops.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -21,4 +20,7 @@ public class Category {
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
+    public Category(String name) {
+        this.name = name;
+    }
 }
