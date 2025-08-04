@@ -94,7 +94,7 @@ public class ProductController {
       return ResponseEntity.ok(new ApiResponse("success", products));
     } catch (Exception e) {
       return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-          .body(new ApiResponse("error", e.getMessage()));
+          .body(new ApiResponse(e.getMessage(), null));
     }
   }
 
@@ -108,7 +108,7 @@ public class ProductController {
       return ResponseEntity.ok(new ApiResponse("success", products));
     } catch (Exception e) {
       return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-          .body(new ApiResponse("error", e.getMessage()));
+          .body(new ApiResponse(e.getMessage(), null));
     }
   }
 
@@ -122,7 +122,7 @@ public class ProductController {
       return ResponseEntity.ok(new ApiResponse("success", products));
     } catch (Exception e) {
       return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-          .body(new ApiResponse("error", e.getMessage()));
+          .body(new ApiResponse(e.getMessage(), null));
     }
   }
 
@@ -136,7 +136,18 @@ public class ProductController {
       return ResponseEntity.ok(new ApiResponse("success", products));
     } catch (Exception e) {
       return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-          .body(new ApiResponse("error", e.getMessage()));
+          .body(new ApiResponse(e.getMessage(), null));
+    }
+  }
+
+  @GetMapping("/product/count/by-brand/and-name")
+  public ResponseEntity<ApiResponse> countProductByBrandAndName(
+      @RequestParam String brand, @RequestParam String name) {
+    try {
+      var productCount = productService.countProductsByBrandAndName(brand, name);
+      return ResponseEntity.ok(new ApiResponse("success", productCount));
+    } catch (Exception e) {
+      return ResponseEntity.ok(new ApiResponse(e.getMessage(), null));
     }
   }
 }
