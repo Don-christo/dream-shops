@@ -1,6 +1,6 @@
 package com.codewithiyke.dreamshops.service.product;
 
-import com.codewithiyke.dreamshops.exceptions.ProductNotFoundException;
+import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.repository.CategoryRepository;
@@ -49,7 +49,7 @@ public class ProductService implements IProductService {
   public Product getProductById(Long id) {
     return productRepository
         .findById(id)
-        .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
   }
 
   @Override
@@ -59,7 +59,7 @@ public class ProductService implements IProductService {
         .ifPresentOrElse(
             productRepository::delete,
             () -> {
-              throw new ProductNotFoundException("Product not found");
+              throw new ResourceNotFoundException("Product not found");
             });
   }
 
@@ -69,7 +69,7 @@ public class ProductService implements IProductService {
         .findById(productId)
         .map(existingProduct -> updateExistingProduct(existingProduct, request))
         .map(productRepository::save)
-        .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
   }
 
   private Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request) {
