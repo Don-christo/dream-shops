@@ -1,5 +1,6 @@
 package com.codewithiyke.dreamshops.service.product;
 
+import com.codewithiyke.dreamshops.dto.ProductDto;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
 import com.codewithiyke.dreamshops.request.ProductUpdateRequest;
@@ -27,4 +28,8 @@ public interface IProductService {
   List<Product> getProductsByBrandAndName(String brand, String name);
 
   Long countProductsByBrandAndName(String brand, String name);
+
+  List<ProductDto> getConvertedProducts(List<Product> products);
+
+  ProductDto convertToDto(Product product);
 }
