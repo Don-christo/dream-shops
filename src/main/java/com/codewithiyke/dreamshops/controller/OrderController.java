@@ -1,5 +1,6 @@
 package com.codewithiyke.dreamshops.controller;
 
+import com.codewithiyke.dreamshops.dto.OrderDto;
 import com.codewithiyke.dreamshops.model.Order;
 import com.codewithiyke.dreamshops.response.ApiResponse;
 import com.codewithiyke.dreamshops.service.order.IOrderService;
@@ -29,7 +30,7 @@ public class OrderController {
   @GetMapping("{orderId}/order")
   public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
     try {
-      Order order = orderService.getOrder(orderId);
+      OrderDto order = orderService.getOrder(orderId);
       return ResponseEntity.ok(new ApiResponse("Item Order Success!", order));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -40,7 +41,7 @@ public class OrderController {
   @GetMapping("{userId}/orders")
   public ResponseEntity<ApiResponse> getUserOrders(@PathVariable Long userId) {
     try {
-      List<Order> order = orderService.getUserOrders(userId);
+      List<OrderDto> order = orderService.getUserOrders(userId);
       return ResponseEntity.ok(new ApiResponse("Item Order Success!", order));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
