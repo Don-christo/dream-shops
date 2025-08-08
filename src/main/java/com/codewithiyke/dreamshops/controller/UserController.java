@@ -13,6 +13,7 @@ import com.codewithiyke.dreamshops.response.ApiResponse;
 import com.codewithiyke.dreamshops.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
   private final IUserService userService;
 
+  @Transactional(readOnly = true)
   @GetMapping("/{userId}/user")
   public ResponseEntity<ApiResponse> getUserId(@PathVariable Long userId) {
     try {

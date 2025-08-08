@@ -1,5 +1,6 @@
 package com.codewithiyke.dreamshops.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class OrderItem {
   private int quantity;
   private BigDecimal price;
 
+  @JsonIgnore
   @ManyToOne
   @JoinColumn(name = "order_id")
   private Order order;
