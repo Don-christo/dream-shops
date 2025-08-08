@@ -13,6 +13,7 @@ import com.codewithiyke.dreamshops.service.product.IProductService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductController {
   private final IProductService productService;
 
+  @Transactional(readOnly = true)
   @GetMapping("/all")
   public ResponseEntity<ApiResponse> getAllProducts() {
     List<Product> products = productService.getAllProducts();
@@ -28,6 +30,7 @@ public class ProductController {
     return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/product/{productId}/product")
   public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
     try {
@@ -73,6 +76,7 @@ public class ProductController {
     }
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/product/by/brand-and-name")
   public ResponseEntity<ApiResponse> getProductByBrandAndName(
       @RequestParam String brandName, @RequestParam String productName) {
@@ -89,6 +93,7 @@ public class ProductController {
     }
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/products/by/brand-and-name")
   public ResponseEntity<ApiResponse> getProductByCategoryAndBrand(
       @RequestParam String category, @RequestParam String brand) {
@@ -105,6 +110,7 @@ public class ProductController {
     }
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/products/{name}/products")
   public ResponseEntity<ApiResponse> getProductByName(@PathVariable String name) {
     try {
@@ -120,6 +126,7 @@ public class ProductController {
     }
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/product/by-brand")
   public ResponseEntity<ApiResponse> findProductByBrand(@RequestParam String brand) {
     try {
@@ -135,6 +142,7 @@ public class ProductController {
     }
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/product/{category}/all/products")
   public ResponseEntity<ApiResponse> findProductByCategory(@PathVariable String category) {
     try {
@@ -150,6 +158,7 @@ public class ProductController {
     }
   }
 
+  @Transactional(readOnly = true)
   @GetMapping("/product/count/by-brand/and-name")
   public ResponseEntity<ApiResponse> countProductByBrandAndName(
       @RequestParam String brand, @RequestParam String name) {

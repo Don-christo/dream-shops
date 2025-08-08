@@ -10,6 +10,7 @@ import com.codewithiyke.dreamshops.service.product.IProductService;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +50,7 @@ public class CartItemService implements ICartItemService {
   }
 
   @Override
+  @Transactional
   public void removeItemFromCart(Long cartId, Long productId) {
     Cart cart = cartService.getCart(cartId);
     CartItem itemToRemove = getCartItem(cartId, productId);
@@ -68,7 +70,10 @@ public class CartItemService implements ICartItemService {
               item.setUnitPrice(item.getProduct().getPrice());
               item.setTotalPrice();
             });
-    BigDecimal totalAmount = cart.getTotalAmount();
+    BigDecimal totalAmount =
+        cart.getItems().stream()
+            .map(CartItem::getTotalPrice)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     cart.setTotalAmount(totalAmount);
     cartRepository.save(cart);
   }
