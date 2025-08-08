@@ -1,5 +1,6 @@
 package com.codewithiyke.dreamshops.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class CartItem {
   private Product product;
 
   //  @ManyToOne(cascade = CascadeType.ALL)
+  @JsonIgnore
   @ManyToOne()
   @JoinColumn(name = "cart_id")
   private Cart cart;
