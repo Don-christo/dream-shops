@@ -36,7 +36,9 @@ public class CartService implements ICartService {
     Cart cart = getCart(id);
     cartItemRepository.deleteAllByCartId(id);
     cart.getItems().clear();
-    cartRepository.deleteById(id);
+    //    cartRepository.deleteById(id);
+    cart.setTotalAmount(BigDecimal.ZERO);
+    cartRepository.save(cart);
   }
 
   @Override
@@ -47,11 +49,13 @@ public class CartService implements ICartService {
 
   @Override
   public Cart initializeNewCart(User user) {
-    return Optional.ofNullable(getCartByUserId(user.getId())).orElseGet(() -> {
-      Cart cart = new Cart();
-      cart.setUser(user);
-      return cartRepository.save(cart);
-    });
+    return Optional.ofNullable(getCartByUserId(user.getId()))
+        .orElseGet(
+            () -> {
+              Cart cart = new Cart();
+              cart.setUser(user);
+              return cartRepository.save(cart);
+            });
   }
 
   @Override

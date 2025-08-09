@@ -1,9 +1,9 @@
 package com.codewithiyke.dreamshops.controller;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 import com.codewithiyke.dreamshops.dto.ProductDto;
+import com.codewithiyke.dreamshops.exceptions.AlreadyExistsException;
 import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
@@ -48,8 +48,8 @@ public class ProductController {
       Product theProduct = productService.addProduct(product);
       ProductDto productDto = productService.convertToDto(theProduct);
       return ResponseEntity.ok(new ApiResponse("Add product success", productDto));
-    } catch (Exception e) {
-      return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+    } catch (AlreadyExistsException e) {
+      return ResponseEntity.status(CONFLICT)
           .body(new ApiResponse(e.getMessage(), null));
     }
   }
