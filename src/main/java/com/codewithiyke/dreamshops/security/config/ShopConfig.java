@@ -24,7 +24,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class ShopConfig {
-  private static final List<String> SECURED_URLS = List.of("");
+  private static final List<String> SECURED_URLS =
+      List.of("/api/v1/cart/**", "/api/v1/cartItems/**");
   private final ShopUserDetailsService userDetailsService;
   private final JwtAuthEntryPoint authEntryPoint;
 
