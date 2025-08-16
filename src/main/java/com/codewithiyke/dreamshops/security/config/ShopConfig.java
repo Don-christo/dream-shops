@@ -42,11 +42,6 @@ public class ShopConfig {
   }
 
   @Bean
-  public AuthTokenFilter authTokenFilter() {
-    return new AuthTokenFilter();
-  }
-
-  @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
       throws Exception {
     return authConfig.getAuthenticationManager();
@@ -60,7 +55,8 @@ public class ShopConfig {
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http, AuthTokenFilter authTokenFilter)
+      throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
         .sessionManagement(
@@ -72,7 +68,7 @@ public class ShopConfig {
                     .anyRequest()
                     .permitAll());
     http.authenticationProvider(daoAuthenticationProvider());
-    http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 }
