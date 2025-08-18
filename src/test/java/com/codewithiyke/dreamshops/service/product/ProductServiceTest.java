@@ -5,12 +5,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.codewithiyke.dreamshops.exceptions.AlreadyExistsException;
+import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.repository.CategoryRepository;
 import com.codewithiyke.dreamshops.repository.ProductRepository;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
 import java.math.BigDecimal;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,15 +58,15 @@ class ProductServiceTest {
 
   @Test
   void addProduct_ShouldReturnProduct_WhenValidRequest() {
-    //    Given
+    //    Arrange
     when(productRepository.existsByNameAndBrand("iPhone 14", "Apple")).thenReturn(false);
     when(categoryRepository.findByName("Electronics")).thenReturn(testCategory);
     when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
-    //    When
+    //    Act
     Product result = productService.addProduct(addProductRequest);
 
-    //    Then
+    //    Assert
     assertNotNull(result);
     assertEquals("iPhone 14", result.getName());
     assertEquals("Apple", result.getBrand());
@@ -75,10 +77,10 @@ class ProductServiceTest {
 
   @Test
   void addProduct_ShouldThrowException_WhenProductAlreadyExists() {
-    //    Given
+    //    Arrange
     when(productRepository.existsByNameAndBrand("iPhone 14", "Apple")).thenReturn(true);
 
-    //    When & Then
+    //    Act & Assert
     AlreadyExistsException ex =
         assertThrows(
             AlreadyExistsException.class, () -> productService.addProduct(addProductRequest));
@@ -92,21 +94,76 @@ class ProductServiceTest {
 
   @Test
   void addProduct_ShouldCreateNewCategory_WhenCategoryDoesNotExist() {
-    //    Given
+    //    Arrange
     when(productRepository.existsByNameAndBrand("iPhone 14", "Apple")).thenReturn(false);
     when(categoryRepository.findByName("Electronics")).thenReturn(null);
     when(categoryRepository.save(any(Category.class))).thenReturn(testCategory);
     when(productRepository.save(any(Product.class))).thenReturn(testProduct);
 
-    //    When
+    //    Act
     Product result = productService.addProduct(addProductRequest);
 
-    //    Then
+    //    Assert
     assertNotNull(result);
     assertEquals("iPhone 14", result.getName());
     assertEquals("Electronics", result.getCategory().getName());
 
     verify(categoryRepository).save(any(Category.class));
     verify(productRepository).save(any(Product.class));
+  }
+
+  @Test
+  void getProductById_ShouldReturnProduct_WhenProductExists() {
+    //    Arrange
+    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+
+    //    Act
+    Product result = productService.getProductById(1L);
+
+    //    Assert
+    assertNotNull(result);
+    assertEquals(1L, result.getId());
+    assertEquals("iPhone 14", result.getName());
+    verify(productRepository, times(1)).findById(1L);
+  }
+
+  @Test
+  void getProductById_ShouldThrowException_WhenProductDoesNotExist() {
+    //    Arrange
+    when(productRepository.findById(99L)).thenReturn(Optional.empty());
+
+    //    Act & Assert
+    ResourceNotFoundException ex =
+        assertThrows(ResourceNotFoundException.class, () -> productService.getProductById(99L));
+
+    assertEquals("Product not found", ex.getMessage());
+    verify(productRepository, times(1)).findById(99L);
+  }
+
+  @Test
+  void deleteProductById_ShouldDelete_WhenProductExists() {
+    // Arrange
+    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+
+    // Act
+    productService.deleteProductById(1L);
+
+    // Assert
+    verify(productRepository, times(1)).findById(1L);
+    verify(productRepository, times(1)).delete(testProduct);
+  }
+
+  @Test
+  void deleteProductById_ShouldThrowException_WhenProductDoesNotExist() {
+    // Arrange
+    when(productRepository.findById(99L)).thenReturn(Optional.empty());
+
+    // Act + Assert
+    ResourceNotFoundException exception =
+        assertThrows(ResourceNotFoundException.class, () -> productService.deleteProductById(99L));
+
+    assertEquals("Product not found", exception.getMessage());
+    verify(productRepository, times(1)).findById(99L);
+    verify(productRepository, never()).delete(any());
   }
 }
