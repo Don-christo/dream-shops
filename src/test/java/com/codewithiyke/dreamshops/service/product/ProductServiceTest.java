@@ -11,6 +11,7 @@ import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.repository.CategoryRepository;
 import com.codewithiyke.dreamshops.repository.ProductRepository;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
+import com.codewithiyke.dreamshops.request.ProductUpdateRequest;
 import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +32,7 @@ class ProductServiceTest {
   private Product testProduct;
   private Category testCategory;
   private AddProductRequest addProductRequest;
+  private ProductUpdateRequest updateProductRequest;
 
   @BeforeEach
   void setup() {
@@ -54,6 +56,14 @@ class ProductServiceTest {
     addProductRequest.setInventory(10);
     addProductRequest.setDescription("Latest iPhone");
     addProductRequest.setCategory(testCategory);
+
+    updateProductRequest = new ProductUpdateRequest();
+    updateProductRequest.setName("Samsung S25");
+    updateProductRequest.setBrand("Samsung");
+    updateProductRequest.setPrice(BigDecimal.valueOf(1999.99));
+    updateProductRequest.setInventory(20);
+    updateProductRequest.setDescription("Latest Samsung");
+    updateProductRequest.setCategory(testCategory);
   }
 
   @Test
@@ -165,5 +175,47 @@ class ProductServiceTest {
     assertEquals("Product not found", exception.getMessage());
     verify(productRepository, times(1)).findById(99L);
     verify(productRepository, never()).delete(any());
+  }
+
+  @Test
+  void updateProduct_ShouldUpdateAndSave_WhenProductExists() {
+    // Arrange
+    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+    when(categoryRepository.findByName("Electronics")).thenReturn(testCategory);
+    when(productRepository.save(any(Product.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    // Act
+    Product updatedProduct = productService.updateProduct(updateProductRequest, 1L);
+
+    // Assert
+    assertNotNull(updatedProduct);
+    assertEquals("Samsung S25", updatedProduct.getName());
+    assertEquals("Samsung", updatedProduct.getBrand());
+    assertEquals(new BigDecimal("1999.99"), updatedProduct.getPrice());
+    assertEquals(20, updatedProduct.getInventory());
+    assertEquals("Latest Samsung", updatedProduct.getDescription());
+    assertEquals(testCategory, updatedProduct.getCategory());
+
+    verify(productRepository, times(1)).findById(1L);
+    verify(categoryRepository, times(1)).findByName("Electronics");
+    verify(productRepository, times(1)).save(testProduct);
+  }
+
+  @Test
+  void updateProduct_ShouldThrowException_WhenProductDoesNotExist() {
+    // Arrange
+    when(productRepository.findById(99L)).thenReturn(Optional.empty());
+
+    // Act + Assert
+    ResourceNotFoundException exception =
+        assertThrows(
+            ResourceNotFoundException.class,
+            () -> productService.updateProduct(updateProductRequest, 99L));
+
+    assertEquals("Product not found", exception.getMessage());
+    verify(productRepository, times(1)).findById(99L);
+    verify(productRepository, never()).save(any());
+    verify(categoryRepository, never()).findByName(anyString());
   }
 }
