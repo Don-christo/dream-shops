@@ -13,6 +13,8 @@ import com.codewithiyke.dreamshops.repository.ProductRepository;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
 import com.codewithiyke.dreamshops.request.ProductUpdateRequest;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,8 @@ class ProductServiceTest {
 
   @InjectMocks private ProductService productService;
 
-  private Product testProduct;
+  private Product testProduct1;
+  private Product testProduct2;
   private Category testCategory;
   private AddProductRequest addProductRequest;
   private ProductUpdateRequest updateProductRequest;
@@ -40,14 +43,23 @@ class ProductServiceTest {
     testCategory.setId(1L);
     testCategory.setName("Electronics");
 
-    testProduct = new Product();
-    testProduct.setId(1L);
-    testProduct.setName("iPhone 14");
-    testProduct.setBrand("Apple");
-    testProduct.setPrice(BigDecimal.valueOf(999.99));
-    testProduct.setInventory(10);
-    testProduct.setDescription("Latest iPhone");
-    testProduct.setCategory(testCategory);
+    testProduct1 = new Product();
+    testProduct1.setId(1L);
+    testProduct1.setName("iPhone 14");
+    testProduct1.setBrand("Apple");
+    testProduct1.setPrice(BigDecimal.valueOf(999.99));
+    testProduct1.setInventory(10);
+    testProduct1.setDescription("Latest iPhone");
+    testProduct1.setCategory(testCategory);
+
+    testProduct2 = new Product();
+    testProduct2.setId(2L);
+    testProduct2.setName("Samsung Galaxy");
+    testProduct2.setBrand("Samsung");
+    testProduct2.setPrice(BigDecimal.valueOf(1999.99));
+    testProduct2.setInventory(10);
+    testProduct2.setDescription("Latest Samsung");
+    testProduct2.setCategory(testCategory);
 
     addProductRequest = new AddProductRequest();
     addProductRequest.setName("iPhone 14");
@@ -71,7 +83,7 @@ class ProductServiceTest {
     //    Arrange
     when(productRepository.existsByNameAndBrand("iPhone 14", "Apple")).thenReturn(false);
     when(categoryRepository.findByName("Electronics")).thenReturn(testCategory);
-    when(productRepository.save(any(Product.class))).thenReturn(testProduct);
+    when(productRepository.save(any(Product.class))).thenReturn(testProduct1);
 
     //    Act
     Product result = productService.addProduct(addProductRequest);
@@ -108,7 +120,7 @@ class ProductServiceTest {
     when(productRepository.existsByNameAndBrand("iPhone 14", "Apple")).thenReturn(false);
     when(categoryRepository.findByName("Electronics")).thenReturn(null);
     when(categoryRepository.save(any(Category.class))).thenReturn(testCategory);
-    when(productRepository.save(any(Product.class))).thenReturn(testProduct);
+    when(productRepository.save(any(Product.class))).thenReturn(testProduct1);
 
     //    Act
     Product result = productService.addProduct(addProductRequest);
@@ -125,7 +137,7 @@ class ProductServiceTest {
   @Test
   void getProductById_ShouldReturnProduct_WhenProductExists() {
     //    Arrange
-    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct1));
 
     //    Act
     Product result = productService.getProductById(1L);
@@ -153,14 +165,14 @@ class ProductServiceTest {
   @Test
   void deleteProductById_ShouldDelete_WhenProductExists() {
     // Arrange
-    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct1));
 
     // Act
     productService.deleteProductById(1L);
 
     // Assert
     verify(productRepository, times(1)).findById(1L);
-    verify(productRepository, times(1)).delete(testProduct);
+    verify(productRepository, times(1)).delete(testProduct1);
   }
 
   @Test
@@ -180,7 +192,7 @@ class ProductServiceTest {
   @Test
   void updateProduct_ShouldUpdateAndSave_WhenProductExists() {
     // Arrange
-    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+    when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct1));
     when(categoryRepository.findByName("Electronics")).thenReturn(testCategory);
     when(productRepository.save(any(Product.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
@@ -199,7 +211,7 @@ class ProductServiceTest {
 
     verify(productRepository, times(1)).findById(1L);
     verify(categoryRepository, times(1)).findByName("Electronics");
-    verify(productRepository, times(1)).save(testProduct);
+    verify(productRepository, times(1)).save(testProduct1);
   }
 
   @Test
@@ -217,5 +229,85 @@ class ProductServiceTest {
     verify(productRepository, times(1)).findById(99L);
     verify(productRepository, never()).save(any());
     verify(categoryRepository, never()).findByName(anyString());
+  }
+
+  @Test
+  void testGetAllProducts() {
+    when(productRepository.findAll()).thenReturn(Arrays.asList(testProduct1, testProduct2));
+
+    List<Product> result = productService.getAllProducts();
+
+    assertEquals(2, result.size());
+    assertTrue(result.contains(testProduct1));
+    verify(productRepository, times(1)).findAll();
+  }
+
+  @Test
+  void testGetAllProductsByCategory() {
+    when(productRepository.findByCategoryName("Electronics"))
+        .thenReturn(Arrays.asList(testProduct1, testProduct2));
+
+    List<Product> result = productService.getAllProductsByCategory("Electronics");
+
+    assertEquals(2, result.size());
+    assertEquals("Electronics", result.get(0).getCategory().getName());
+    verify(productRepository).findByCategoryName("Electronics");
+  }
+
+  @Test
+  void testGetProductsByBrand() {
+    when(productRepository.findByBrand("Samsung")).thenReturn(List.of(testProduct2));
+
+    List<Product> result = productService.getProductsByBrand("Samsung");
+
+    assertEquals(1, result.size());
+    assertEquals("Samsung", result.get(0).getBrand());
+    verify(productRepository).findByBrand("Samsung");
+  }
+
+  @Test
+  void testGetProductsByCategoryAndBrand() {
+    when(productRepository.findByCategoryNameAndBrand("Electronics", "Samsung"))
+        .thenReturn(List.of(testProduct2));
+
+    List<Product> result = productService.getProductsByCategoryAndBrand("Electronics", "Samsung");
+
+    assertEquals(1, result.size());
+    assertEquals("Samsung Galaxy", result.get(0).getName());
+    verify(productRepository).findByCategoryNameAndBrand("Electronics", "Samsung");
+  }
+
+  @Test
+  void testGetProductsByName() {
+    when(productRepository.findByName("iPhone 14")).thenReturn(List.of(testProduct1));
+
+    List<Product> result = productService.getProductsByName("iPhone 14");
+
+    assertEquals(1, result.size());
+    assertEquals("iPhone 14", result.get(0).getName());
+    verify(productRepository).findByName("iPhone 14");
+  }
+
+  @Test
+  void testGetProductsByBrandAndName() {
+    when(productRepository.findByBrandAndName("Samsung", "Samsung Galaxy"))
+        .thenReturn(List.of(testProduct2));
+
+    List<Product> result = productService.getProductsByBrandAndName("Samsung", "Samsung Galaxy");
+
+    assertEquals(1, result.size());
+    assertEquals("Samsung Galaxy", result.get(0).getName());
+    assertEquals("Samsung", result.get(0).getBrand());
+    verify(productRepository).findByBrandAndName("Samsung", "Samsung Galaxy");
+  }
+
+  @Test
+  void testCountProductsByBrandAndName() {
+    when(productRepository.countByBrandAndName("Samsung", "Phone")).thenReturn(5L);
+
+    Long count = productService.countProductsByBrandAndName("Samsung", "Phone");
+
+    assertEquals(5L, count);
+    verify(productRepository).countByBrandAndName("Samsung", "Phone");
   }
 }
