@@ -4,11 +4,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.codewithiyke.dreamshops.dto.ImageDto;
+import com.codewithiyke.dreamshops.dto.ProductDto;
 import com.codewithiyke.dreamshops.exceptions.AlreadyExistsException;
 import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
+import com.codewithiyke.dreamshops.model.Image;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.repository.CategoryRepository;
+import com.codewithiyke.dreamshops.repository.ImageRepository;
 import com.codewithiyke.dreamshops.repository.ProductRepository;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
 import com.codewithiyke.dreamshops.request.ProductUpdateRequest;
@@ -22,12 +26,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
   @Mock private ProductRepository productRepository;
-
   @Mock private CategoryRepository categoryRepository;
+  @Mock private ImageRepository imageRepository;
+  @Mock private ModelMapper modelMapper;
 
   @InjectMocks private ProductService productService;
 
@@ -309,5 +315,61 @@ class ProductServiceTest {
 
     assertEquals(5L, count);
     verify(productRepository).countByBrandAndName("Samsung", "Phone");
+  }
+
+  @Test
+  void testConvertToDto() {
+    // Arrange
+    ProductDto productDto = new ProductDto();
+    productDto.setId(testProduct1.getId());
+    productDto.setName(testProduct1.getName());
+
+    Image image = new Image();
+    image.setId(100L);
+    image.setFileName("_DSC4311.jpg");
+    List<Image> images = List.of(image);
+
+    ImageDto imageDto = new ImageDto();
+    imageDto.setId(100L);
+    imageDto.setFileName("_DSC4311.jpg");
+
+    when(modelMapper.map(testProduct1, ProductDto.class)).thenReturn(productDto);
+    when(imageRepository.findByProductId(1L)).thenReturn(images);
+    when(modelMapper.map(image, ImageDto.class)).thenReturn(imageDto);
+
+    //    Act
+    ProductDto result = productService.convertToDto(testProduct1);
+
+    //    Assert
+    assertNotNull(result);
+    assertEquals(productDto.getId(), result.getId());
+    assertEquals(productDto.getName(), result.getName());
+    assertEquals(1, result.getImages().size());
+
+    verify(modelMapper).map(testProduct1, ProductDto.class);
+    verify(imageRepository).findByProductId(1L);
+    verify(modelMapper).map(image, ImageDto.class);
+  }
+
+  @Test
+  void testGetConvertedProducts() {
+    //    Arrange
+    ProductDto productDto = new ProductDto();
+    productDto.setId(testProduct1.getId());
+    productDto.setName(testProduct1.getName());
+
+    //    Mock convertDto directly because it has been tested separately already
+    when(modelMapper.map(testProduct1, ProductDto.class)).thenReturn(productDto);
+    when(imageRepository.findByProductId(1L)).thenReturn(List.of());
+
+    //    Act
+    List<ProductDto> result = productService.getConvertedProducts(List.of(testProduct1));
+
+    //    Assert
+    assertNotNull(result);
+    assertEquals(1, result.size());
+    assertEquals("iPhone 14", result.get(0).getName());
+    verify(modelMapper).map(testProduct1, ProductDto.class);
+    verify(imageRepository).findByProductId(1L);
   }
 }
