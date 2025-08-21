@@ -92,4 +92,21 @@ public class ProductControllerTest {
     verify(productService).getAllProducts();
     verify(productService).getConvertedProducts(products);
   }
+
+  @Test
+  void getProductById_ShouldReturnProduct_WhenProductExists() throws Exception {
+    // Arrange
+    when(productService.getProductById(1L)).thenReturn(testProduct);
+    when(productService.convertToDto(testProduct)).thenReturn(testProductDto);
+
+    // Act & Assert
+
+    mockMvc
+        .perform(get("/api/v1/products/product/{productId}/product", 1L))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data.name").value("iPhone 14"))
+        .andExpect(jsonPath("$.data.brand").value("Apple"));
+  }
 }
