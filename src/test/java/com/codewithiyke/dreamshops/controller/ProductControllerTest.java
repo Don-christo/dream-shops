@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.codewithiyke.dreamshops.dto.ProductDto;
+import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
@@ -108,5 +109,17 @@ public class ProductControllerTest {
         .andExpect(jsonPath("$.message").value("success"))
         .andExpect(jsonPath("$.data.name").value("iPhone 14"))
         .andExpect(jsonPath("$.data.brand").value("Apple"));
+  }
+
+  @Test
+  void getProductById_ShouldReturnNotFound_WhenProductDoesNotExist() throws Exception {
+    // Arrange
+    when(productService.getProductById(1L))
+        .thenThrow(new ResourceNotFoundException("Product not found"));
+
+    // Act & Assert
+    mockMvc
+        .perform(get("/api/v1/products/product/{productId}/product", 1L))
+        .andExpect(status().isNotFound());
   }
 }
