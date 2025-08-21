@@ -19,12 +19,11 @@ public class ProductRepositoryTest {
 
   @Autowired private ProductRepository productRepository;
 
-  private Category testCategory;
   private Product testProduct;
 
   @BeforeEach
   void setup() {
-    testCategory = new Category();
+    Category testCategory = new Category();
     testCategory.setName("Electronics");
     testEntityManager.persistAndFlush(testCategory);
 
