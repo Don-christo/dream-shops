@@ -1,8 +1,10 @@
 package com.codewithiyke.dreamshops.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.codewithiyke.dreamshops.dto.ProductDto;
@@ -37,6 +39,7 @@ public class ProductControllerTest {
 
   private Product testProduct;
   private ProductDto testProductDto;
+  private AddProductRequest addProductRequest;
 
   @BeforeEach
   void setup() {
@@ -53,7 +56,7 @@ public class ProductControllerTest {
     testProduct.setDescription("Latest iPhone");
     testProduct.setCategory(testCategory);
 
-    AddProductRequest addProductRequest = new AddProductRequest();
+    addProductRequest = new AddProductRequest();
     addProductRequest.setName("iPhone 14");
     addProductRequest.setBrand("Apple");
     addProductRequest.setPrice(BigDecimal.valueOf(999.99));
@@ -121,5 +124,26 @@ public class ProductControllerTest {
     mockMvc
         .perform(get("/api/v1/products/product/{productId}/product", 1L))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void addProduct_ShouldReturnCreatedProduct() throws Exception {
+    // Arrange
+    when(productService.addProduct(any(AddProductRequest.class))).thenReturn(testProduct);
+    when(productService.convertToDto(testProduct)).thenReturn(testProductDto);
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            post("/api/v1/products/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(addProductRequest)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.message").value("Add product success"))
+        .andExpect(jsonPath("$.data.name").value("iPhone 14"));
+
+    verify(productService).addProduct(any(AddProductRequest.class));
+    verify(productService).convertToDto(testProduct);
   }
 }
