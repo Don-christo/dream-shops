@@ -181,4 +181,104 @@ public class ProductControllerTest {
 
     verify(productService).deleteProductById(1L);
   }
+
+  @Test
+  void getProductByBrandAndName_ShouldReturnProducts_WhenProductsExist() throws Exception {
+    List<Product> products = List.of(testProduct);
+    List<ProductDto> productDtos = List.of(testProductDto);
+
+    when(productService.getProductsByBrandAndName("Apple", "iPhone")).thenReturn(products);
+    when(productService.getConvertedProducts(products)).thenReturn(productDtos);
+
+    mockMvc
+        .perform(
+            get("/api/v1/products/product/by/brand-and-name")
+                .param("brandName", "Apple")
+                .param("productName", "iPhone"))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data[0].name").value("iPhone 14"))
+        .andExpect(jsonPath("$.data[0].brand").value("Apple"));
+
+    verify(productService).getProductsByBrandAndName("Apple", "iPhone");
+    verify(productService).getConvertedProducts(products);
+  }
+
+  @Test
+  void getProductByCategoryAndBrand_ShouldReturnProducts_WhenProductsExist() throws Exception {
+    List<Product> products = List.of(testProduct);
+    List<ProductDto> productDtos = List.of(testProductDto);
+
+    when(productService.getProductsByCategoryAndBrand("Electronics", "Apple")).thenReturn(products);
+    when(productService.getConvertedProducts(products)).thenReturn(productDtos);
+
+    mockMvc
+        .perform(
+            get("/api/v1/products/products/by/brand-and-name")
+                .param("category", "Electronics")
+                .param("brand", "Apple"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data[0].name").value("iPhone 14"));
+  }
+
+  @Test
+  void getProductByName_ShouldReturnProducts_WhenProductsExist() throws Exception {
+    List<Product> products = List.of(testProduct);
+    List<ProductDto> productDtos = List.of(testProductDto);
+
+    when(productService.getProductsByName("iPhone")).thenReturn(products);
+    when(productService.getConvertedProducts(products)).thenReturn(productDtos);
+
+    mockMvc
+        .perform(get("/api/v1/products/products/{name}/products", "iPhone"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data[0].name").value("iPhone 14"));
+  }
+
+  @Test
+  void findProductByBrand_ShouldReturnProducts_WhenProductsExist() throws Exception {
+    List<Product> products = List.of(testProduct);
+    List<ProductDto> productDtos = List.of(testProductDto);
+
+    when(productService.getProductsByBrand("Apple")).thenReturn(products);
+    when(productService.getConvertedProducts(products)).thenReturn(productDtos);
+
+    mockMvc
+        .perform(get("/api/v1/products/product/by-brand").param("brand", "Apple"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data[0].name").value("iPhone 14"));
+  }
+
+  @Test
+  void findProductByCategory_ShouldReturnProducts_WhenProductsExist() throws Exception {
+    List<Product> products = List.of(testProduct);
+    List<ProductDto> productDtos = List.of(testProductDto);
+
+    when(productService.getAllProductsByCategory("Electronics")).thenReturn(products);
+    when(productService.getConvertedProducts(products)).thenReturn(productDtos);
+
+    mockMvc
+        .perform(get("/api/v1/products/product/{category}/all/products", "Electronics"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data[0].name").value("iPhone 14"));
+  }
+
+  @Test
+  void countProductByBrandAndName_ShouldReturnCount() throws Exception {
+    when(productService.countProductsByBrandAndName("Apple", "iPhone")).thenReturn(5L);
+
+    mockMvc
+        .perform(
+            get("/api/v1/products/product/count/by-brand/and-name")
+                .param("brand", "Apple")
+                .param("name", "iPhone"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("success"))
+        .andExpect(jsonPath("$.data").value(5));
+  }
 }
