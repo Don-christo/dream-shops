@@ -1,10 +1,8 @@
 package com.codewithiyke.dreamshops.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.codewithiyke.dreamshops.dto.ProductDto;
@@ -12,6 +10,7 @@ import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
 import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.request.AddProductRequest;
+import com.codewithiyke.dreamshops.request.ProductUpdateRequest;
 import com.codewithiyke.dreamshops.security.jwt.JwtUtils;
 import com.codewithiyke.dreamshops.security.user.ShopUserDetailsService;
 import com.codewithiyke.dreamshops.service.product.ProductService;
@@ -145,5 +144,41 @@ public class ProductControllerTest {
 
     verify(productService).addProduct(any(AddProductRequest.class));
     verify(productService).convertToDto(testProduct);
+  }
+
+  @Test
+  void updateProduct_ShouldReturnUpdatedProduct() throws Exception {
+    // Arrange
+    when(productService.updateProduct(any(ProductUpdateRequest.class), eq(1L)))
+        .thenReturn(testProduct);
+    when(productService.convertToDto(testProduct)).thenReturn(testProductDto);
+
+    // Act & Assert
+    mockMvc
+        .perform(
+            put("/api/v1/products/product/{productId}/update", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(addProductRequest)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.message").value("Update product success"))
+        .andExpect(jsonPath("$.data.name").value("iPhone 14"));
+
+    verify(productService).updateProduct(any(ProductUpdateRequest.class), eq(1L));
+    verify(productService).convertToDto(testProduct);
+  }
+
+  @Test
+  void deleteProduct_ShouldReturnSuccessMessage() throws Exception {
+    // Arrange
+    doNothing().when(productService).deleteProductById(1L);
+
+    // Act & Assert
+    mockMvc
+        .perform(delete("/api/v1/products/product/{productId}/delete", 1L))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").value("Delete product success"));
+
+    verify(productService).deleteProductById(1L);
   }
 }
