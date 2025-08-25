@@ -38,7 +38,7 @@ class JwtUtilsTest {
 
   @Test
   void generateTokenForUser_ShouldReturnValidToken() {
-    // Given
+    // Arrange
     Collection<? extends GrantedAuthority> authorities =
         List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
@@ -47,10 +47,10 @@ class JwtUtilsTest {
     when(userDetails.getId()).thenReturn(1L);
     doReturn(authorities).when(userDetails).getAuthorities();
 
-    // When
+    // Act
     String token = jwtUtils.generateTokenForUser(authentication);
 
-    // Then
+    // Assert
     assertNotNull(token);
     assertFalse(token.isEmpty());
     assertTrue(jwtUtils.validateToken(token));
@@ -58,7 +58,7 @@ class JwtUtilsTest {
 
   @Test
   void getUsernameFromToken_ShouldReturnCorrectUsername() {
-    // Given
+    // Arrange
     when(authentication.getPrincipal()).thenReturn(userDetails);
     when(userDetails.getEmail()).thenReturn("testuser@example.com");
     when(userDetails.getAuthorities()).thenReturn(List.of());
@@ -66,16 +66,16 @@ class JwtUtilsTest {
 
     String token = jwtUtils.generateTokenForUser(authentication);
 
-    // When
+    // Act
     String extractedUsername = jwtUtils.getUserNameFromToken(token);
 
-    // Then
+    // Assert
     assertEquals("testuser@example.com", extractedUsername);
   }
 
   @Test
   void validateToken_ShouldReturnTrue_WhenTokenIsValid() {
-    // Given
+    // Arrange
     when(authentication.getPrincipal()).thenReturn(userDetails);
     when(userDetails.getEmail()).thenReturn("testuser@example.com");
     when(userDetails.getAuthorities()).thenReturn(List.of());
@@ -83,19 +83,19 @@ class JwtUtilsTest {
 
     String token = jwtUtils.generateTokenForUser(authentication);
 
-    // When
+    // Act
     boolean isValid = jwtUtils.validateToken(token);
 
-    // Then
+    // Assert
     assertTrue(isValid);
   }
 
   @Test
   void validateToken_ShouldThrowException_WhenTokenIsInvalid() {
-    // Given
+    // Arrange
     String invalidToken = "invalid.token.here";
 
-    // When & Then
+    // Act & Assert
     assertThrows(JwtException.class, () -> jwtUtils.validateToken(invalidToken));
   }
 }
