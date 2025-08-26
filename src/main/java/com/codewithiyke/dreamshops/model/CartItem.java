@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "cart_items")
 public class CartItem {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,13 +23,13 @@ public class CartItem {
   private BigDecimal unitPrice;
   private BigDecimal totalPrice;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
   private Product product;
 
   //  @ManyToOne(cascade = CascadeType.ALL)
   @JsonIgnore
-  @ManyToOne()
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "cart_id")
   private Cart cart;
 

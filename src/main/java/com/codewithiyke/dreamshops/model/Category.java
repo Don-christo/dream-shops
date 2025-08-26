@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "categories")
 public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +21,7 @@ public class Category {
 
   private String name;
 
-  @OneToMany(mappedBy = "category")
+  @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
   @JsonIgnore
   private List<Product> products;
 

@@ -53,8 +53,6 @@ class CartItemServiceTest {
     testCartItem.setQuantity(2);
     testCartItem.setUnitPrice(testProduct.getPrice());
     testCartItem.setTotalPrice(); // calculates price internally
-
-    testCart.addItem(testCartItem);
   }
 
   @Test
@@ -82,6 +80,8 @@ class CartItemServiceTest {
   @Test
   void addItemToCart_ShouldUpdateQuantity_WhenItemAlreadyInCart() {
     // Arrange
+    testCart.addItem(testCartItem);
+
     when(cartService.getCart(1L)).thenReturn(testCart);
     when(productService.getProductById(1L)).thenReturn(testProduct);
     when(cartItemRepository.save(any(CartItem.class)))
@@ -121,6 +121,8 @@ class CartItemServiceTest {
   @Test
   void removeItemFromCart_ShouldRemoveItem_WhenItemExists() {
     // Arrange
+    testCart.addItem(testCartItem);
+
     when(cartService.getCart(1L)).thenReturn(testCart);
 
     // Act

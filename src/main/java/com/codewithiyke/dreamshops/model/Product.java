@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "products")
 public class Product {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +24,15 @@ public class Product {
   private String description;
 
   //  @ManyToOne(cascade = CascadeType.ALL)
-  @ManyToOne()
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")
   private Category category;
 
-  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "product",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
   private List<Image> images;
 
   public Product(

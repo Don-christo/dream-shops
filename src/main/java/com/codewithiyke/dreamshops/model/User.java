@@ -15,6 +15,7 @@ import org.hibernate.annotations.NaturalId;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "users")
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +30,11 @@ public class User {
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private Cart cart;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "user",
+      cascade = CascadeType.ALL,
+      orphanRemoval = true,
+      fetch = FetchType.LAZY)
   private List<Order> orders;
 
   @ManyToMany(

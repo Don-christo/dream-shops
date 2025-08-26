@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "order_items")
 public class OrderItem {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,11 +19,11 @@ public class OrderItem {
   private int quantity;
   private BigDecimal price;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "order_id")
   private Order order;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
   private Product product;
 
