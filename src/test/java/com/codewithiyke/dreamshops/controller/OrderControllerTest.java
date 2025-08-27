@@ -39,7 +39,7 @@ public class OrderControllerTest {
     testOrder.setOrderId(1L);
 
     testOrderDto = new OrderDto();
-    testOrderDto.setId(1L);
+    testOrderDto.setOrderId(1L);
   }
 
   @Test
@@ -52,7 +52,7 @@ public class OrderControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.message").value("Item Order Success!"))
-        .andExpect(jsonPath("$.data.id").value(1L));
+        .andExpect(jsonPath("$.data.orderId").value(1L));
 
     verify(orderService).placeOrder(1L);
     verify(orderService).convertToDto(testOrder);
@@ -79,7 +79,7 @@ public class OrderControllerTest {
         .perform(get("/api/v1/orders/{orderId}/order", 1L))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Item Order Success!"))
-        .andExpect(jsonPath("$.data.id").value(1L));
+        .andExpect(jsonPath("$.data.orderId").value(1L));
 
     verify(orderService).getOrder(1L);
   }
@@ -105,7 +105,7 @@ public class OrderControllerTest {
         .perform(get("/api/v1/orders/{userId}/orders", 1L))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Item Order Success!"))
-        .andExpect(jsonPath("$.data[0].id").value(1L));
+        .andExpect(jsonPath("$.data[0].orderId").value(1L));
 
     verify(orderService).getUserOrders(1L);
   }

@@ -47,7 +47,7 @@ public class CartControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.message").value("Success"))
-        .andExpect(jsonPath("$.data.id").value(1L));
+        .andExpect(jsonPath("$.data.cartId").value(1L));
 
     verify(cartService).getCart(1L);
   }

@@ -11,7 +11,6 @@ import com.codewithiyke.dreamshops.model.Product;
 import com.codewithiyke.dreamshops.model.User;
 import com.codewithiyke.dreamshops.repository.CartItemRepository;
 import com.codewithiyke.dreamshops.repository.CartRepository;
-import com.codewithiyke.dreamshops.service.product.IProductService;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Optional;
@@ -28,8 +27,6 @@ class CartServiceTest {
   @InjectMocks private CartService cartService;
   @Mock private CartRepository cartRepository;
   @Mock private CartItemRepository cartItemRepository;
-  @Mock private IProductService productService;
-  private Product testProduct;
   private Cart testCart;
 
   @BeforeEach
@@ -38,7 +35,7 @@ class CartServiceTest {
     testUser.setId(1L);
     testUser.setEmail("test@example.com");
 
-    testProduct = new Product();
+    Product testProduct = new Product();
     testProduct.setId(1L);
     testProduct.setName("iPhone 14");
     testProduct.setPrice(BigDecimal.valueOf(999.99));
@@ -62,8 +59,7 @@ class CartServiceTest {
   @Test
   void getCart_ShouldReturnExistingCart_WhenCartExists() {
     // Arrange
-    when(cartRepository.findById(1L)).thenReturn(Optional.of(testCart));
-    when(cartRepository.save(any(Cart.class))).thenReturn(testCart);
+    when(cartRepository.findWithItemsById(1L)).thenReturn(Optional.of(testCart));
 
     // Act
     Cart result = cartService.getCart(1L);
@@ -72,49 +68,27 @@ class CartServiceTest {
     assertNotNull(result);
     assertEquals(testCart.getId(), result.getId());
     assertEquals(testCart.getTotalAmount(), result.getTotalAmount());
-    verify(cartRepository).findById(1L);
-    verify(cartRepository).save(testCart);
+    verify(cartRepository).findWithItemsById(1L);
   }
 
   @Test
   void getCart_ShouldThrowException_WhenCartDoesNotExist() {
     // Arrange
-    when(cartRepository.findById(1L)).thenReturn(Optional.empty());
+    when(cartRepository.findWithItemsById(1L)).thenReturn(Optional.empty());
 
     // Act / Assert
     ResourceNotFoundException exception =
         assertThrows(ResourceNotFoundException.class, () -> cartService.getCart(1L));
 
     assertEquals("Cart not found", exception.getMessage());
-    verify(cartRepository).findById(1L);
-    verify(cartRepository, never()).save(any());
-  }
-
-  @Test
-  void getCart_ShouldUpdateTotalAmount_WhenCartHasItems() {
-    // Simulate expected calculation: total amount from cart items
-    BigDecimal expectedTotal = testProduct.getPrice().multiply(BigDecimal.valueOf(2)); // 2 x 999.99
-
-    // Arrange
-    when(cartRepository.findById(1L)).thenReturn(Optional.of(testCart));
-    when(cartRepository.save(any(Cart.class)))
-        .thenAnswer(invocation -> invocation.<Cart>getArgument(0));
-
-    // Act
-    Cart result = cartService.getCart(1L);
-
-    // Assert
-    assertNotNull(result);
-    assertEquals(expectedTotal, result.getTotalAmount(), "Total amount should equal sum of items");
-    verify(cartRepository).findById(1L);
-    verify(cartRepository).save(result);
+    verify(cartRepository).findWithItemsById(1L);
   }
 
   @Test
   void clearCart_ShouldRemoveAllItems() {
     // Arrange
     testCart.getItems().add(new CartItem());
-    when(cartRepository.findById(1L)).thenReturn(Optional.of(testCart));
+    when(cartRepository.findWithItemsById(1L)).thenReturn(Optional.of(testCart));
     when(cartRepository.save(any(Cart.class))).thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     // Act
@@ -122,7 +96,7 @@ class CartServiceTest {
 
     // Assert
     verify(cartItemRepository).deleteAllByCartId(1L);
-    verify(cartRepository, times(2)).save(testCart);
+    verify(cartRepository, times(1)).save(testCart);
     assertEquals(BigDecimal.ZERO, testCart.getTotalAmount());
     assertTrue(testCart.getItems().isEmpty());
   }

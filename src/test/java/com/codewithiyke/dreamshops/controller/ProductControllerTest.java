@@ -215,7 +215,7 @@ public class ProductControllerTest {
 
     mockMvc
         .perform(
-            get("/api/v1/products/products/by/brand-and-name")
+            get("/api/v1/products/products/by/category-and-brand")
                 .param("category", "Electronics")
                 .param("brand", "Apple"))
         .andExpect(status().isOk())

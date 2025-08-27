@@ -116,32 +116,43 @@ class OrderServiceTest {
   @Test
   void getOrder_ShouldReturnOrder_WhenOrderExists() {
     // Arrange
-    when(orderRepository.findById(1L)).thenReturn(Optional.of(testOrder));
+    when(orderRepository.findWithItemsByOrderId(1L)).thenReturn(Optional.of(testOrder));
 
-    OrderDto expectedDto = new OrderDto();
-    expectedDto.setId(testOrder.getOrderId());
-    expectedDto.setTotalAmount(testOrder.getTotalAmount());
+    // Add at least one OrderItem to the order because the mapper expects orderItems
+    Product product = new Product();
+    product.setId(1L);
+    product.setName("iPhone 14");
+    product.setBrand("Apple");
 
-    when(modelMapper.map(testOrder, OrderDto.class)).thenReturn(expectedDto);
+    OrderItem orderItem = new OrderItem();
+    orderItem.setProduct(product);
+    orderItem.setQuantity(2);
+    orderItem.setPrice(BigDecimal.valueOf(999.99));
+
+    testOrder.setOrderItems(Set.of(orderItem));
 
     // Act
     OrderDto result = orderService.getOrder(1L);
 
     // Assert
     assertNotNull(result);
-    assertEquals(expectedDto.getId(), result.getId());
-    assertEquals(0, expectedDto.getTotalAmount().compareTo(result.getTotalAmount()));
-    verify(orderRepository).findById(1L);
-    verify(modelMapper).map(testOrder, OrderDto.class);
+    assertEquals(testOrder.getOrderId(), result.getOrderId());
+    assertEquals(testOrder.getUser().getId(), result.getUserId());
+    assertEquals(testOrder.getOrderItems().size(), result.getOrderItems().size());
+    assertEquals(0, testOrder.getTotalAmount().compareTo(result.getTotalAmount()));
+
+    verify(orderRepository).findWithItemsByOrderId(1L);
   }
 
   @Test
   void getOrder_ShouldThrowException_WhenOrderNotFound() {
     // Arrange
-    when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+    when(orderRepository.findWithItemsByOrderId(1L)).thenReturn(Optional.empty());
 
     // Act & Assert
     assertThrows(ResourceNotFoundException.class, () -> orderService.getOrder(1L));
+
+    verify(orderRepository).findWithItemsByOrderId(1L);
   }
 
   @Test
@@ -150,11 +161,18 @@ class OrderServiceTest {
     List<Order> orders = Collections.singletonList(testOrder);
     when(orderRepository.findByUserId(1L)).thenReturn(orders);
 
-    OrderDto expectedDto = new OrderDto();
-    expectedDto.setId(testOrder.getOrderId());
-    expectedDto.setTotalAmount(testOrder.getTotalAmount());
+    // Add an order item for mapping correctness
+    Product product = new Product();
+    product.setId(1L);
+    product.setName("iPhone 14");
+    product.setBrand("Apple");
 
-    when(modelMapper.map(testOrder, OrderDto.class)).thenReturn(expectedDto);
+    OrderItem orderItem = new OrderItem();
+    orderItem.setProduct(product);
+    orderItem.setQuantity(2);
+    orderItem.setPrice(BigDecimal.valueOf(999.99));
+
+    testOrder.setOrderItems(Set.of(orderItem));
 
     // Act
     List<OrderDto> result = orderService.getUserOrders(1L);
@@ -162,11 +180,10 @@ class OrderServiceTest {
     // Assert
     assertNotNull(result);
     assertEquals(1, result.size());
-    assertEquals(expectedDto.getId(), result.get(0).getId());
-    assertEquals(0, expectedDto.getTotalAmount().compareTo(result.get(0).getTotalAmount()));
+    assertEquals(testOrder.getOrderId(), result.get(0).getOrderId());
+    assertEquals(0, testOrder.getTotalAmount().compareTo(result.get(0).getTotalAmount()));
 
     verify(orderRepository).findByUserId(1L);
-    verify(modelMapper).map(testOrder, OrderDto.class);
   }
 
   @Test
