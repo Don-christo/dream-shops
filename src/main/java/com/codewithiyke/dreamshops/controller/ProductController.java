@@ -97,7 +97,7 @@ public class ProductController {
   }
 
   @Transactional(readOnly = true)
-  @GetMapping("/products/by/brand-and-name")
+  @GetMapping("/products/by/category-and-brand")
   public ResponseEntity<ApiResponse> getProductByCategoryAndBrand(
       @RequestParam String category, @RequestParam String brand) {
     try {

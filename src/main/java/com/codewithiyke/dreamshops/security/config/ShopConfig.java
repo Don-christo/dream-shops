@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity(prePostEnabled = true)
 public class ShopConfig {
   private static final List<String> SECURED_URLS =
-      List.of("/api/v1/cart/**", "/api/v1/cartItems/**");
+      List.of("/api/v1/carts/**", "/api/v1/cartItems/**");
   private final ShopUserDetailsService userDetailsService;
   private final JwtAuthEntryPoint authEntryPoint;
 

@@ -4,6 +4,7 @@ import com.codewithiyke.dreamshops.exceptions.AlreadyExistsException;
 import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
 import com.codewithiyke.dreamshops.repository.CategoryRepository;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -51,11 +52,16 @@ public class CategoryService implements ICategoryService {
   }
 
   @Override
+  @Transactional
   public void deleteCategoryById(Long id) {
     categoryRepository
         .findById(id)
         .ifPresentOrElse(
-            categoryRepository::delete,
+            category -> {
+              if (!category.getProducts().isEmpty()) {
+                throw new RuntimeException("Cannot delete category with associated products");
+              }
+            },
             () -> {
               throw new ResourceNotFoundException("Category not found");
             });

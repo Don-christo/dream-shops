@@ -59,6 +59,7 @@ public class CartItemService implements ICartItemService {
   }
 
   @Override
+  @Transactional
   public void updateQuantity(Long cartId, Long productId, int quantity) {
     Cart cart = cartService.getCart(cartId);
     cart.getItems().stream()

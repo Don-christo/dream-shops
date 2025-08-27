@@ -3,6 +3,7 @@ package com.codewithiyke.dreamshops.controller;
 import static org.springframework.http.HttpStatus.*;
 
 import com.codewithiyke.dreamshops.exceptions.AlreadyExistsException;
+import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
 import com.codewithiyke.dreamshops.model.Category;
 import com.codewithiyke.dreamshops.response.ApiResponse;
 import com.codewithiyke.dreamshops.service.category.ICategoryService;
@@ -38,7 +39,7 @@ public class CategoryController {
     }
   }
 
-  @GetMapping("/category/{id}/category")
+  @GetMapping("/category/id/{id}")
   public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id) {
     try {
       Category theCategory = categoryService.getCategoryById(id);
@@ -48,7 +49,7 @@ public class CategoryController {
     }
   }
 
-  @GetMapping("/category/{name}/category")
+  @GetMapping("/category/name/{name}")
   public ResponseEntity<ApiResponse> getCategoryByName(@PathVariable String name) {
     try {
       Category theCategory = categoryService.getCategoryByName(name);
@@ -63,8 +64,13 @@ public class CategoryController {
     try {
       categoryService.deleteCategoryById(id);
       return ResponseEntity.ok(new ApiResponse("Deleted!", null));
-    } catch (Exception e) {
+    } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(BAD_REQUEST).body(new ApiResponse(e.getMessage(), null));
+    } catch (Exception e) {
+      return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+          .body(new ApiResponse(e.getMessage(), null));
     }
   }
 

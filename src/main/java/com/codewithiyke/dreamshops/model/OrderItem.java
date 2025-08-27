@@ -19,11 +19,11 @@ public class OrderItem {
   private int quantity;
   private BigDecimal price;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "order_id")
   private Order order;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "product_id")
   private Product product;
 

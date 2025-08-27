@@ -2,7 +2,9 @@ package com.codewithiyke.dreamshops.controller;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.codewithiyke.dreamshops.dto.CartDto;
 import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
+import com.codewithiyke.dreamshops.mapper.CartMapper;
 import com.codewithiyke.dreamshops.model.Cart;
 import com.codewithiyke.dreamshops.response.ApiResponse;
 import com.codewithiyke.dreamshops.service.cart.ICartService;
@@ -21,7 +23,8 @@ public class CartController {
   public ResponseEntity<ApiResponse> getCart(@PathVariable Long cartId) {
     try {
       Cart cart = cartService.getCart(cartId);
-      return ResponseEntity.ok(new ApiResponse("Success", cart));
+      CartDto cartDto = CartMapper.toDto(cart);
+      return ResponseEntity.ok(new ApiResponse("Success", cartDto));
     } catch (ResourceNotFoundException e) {
       return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
     }

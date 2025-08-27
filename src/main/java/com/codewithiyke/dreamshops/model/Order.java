@@ -26,14 +26,10 @@ public class Order {
   @Enumerated(EnumType.STRING)
   private OrderStatus orderStatus;
 
-  @OneToMany(
-      mappedBy = "order",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<OrderItem> orderItems = new HashSet<>();
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
 }

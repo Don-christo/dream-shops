@@ -23,13 +23,13 @@ public class CartItem {
   private BigDecimal unitPrice;
   private BigDecimal totalPrice;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "product_id")
   private Product product;
 
   //  @ManyToOne(cascade = CascadeType.ALL)
   @JsonIgnore
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "cart_id")
   private Cart cart;
 

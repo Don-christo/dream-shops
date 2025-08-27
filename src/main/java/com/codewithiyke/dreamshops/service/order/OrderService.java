@@ -3,6 +3,7 @@ package com.codewithiyke.dreamshops.service.order;
 import com.codewithiyke.dreamshops.dto.OrderDto;
 import com.codewithiyke.dreamshops.enums.OrderStatus;
 import com.codewithiyke.dreamshops.exceptions.ResourceNotFoundException;
+import com.codewithiyke.dreamshops.mapper.OrderMapper;
 import com.codewithiyke.dreamshops.model.*;
 import com.codewithiyke.dreamshops.repository.OrderRepository;
 import com.codewithiyke.dreamshops.repository.ProductRepository;
@@ -79,17 +80,20 @@ public class OrderService implements IOrderService {
   }
 
   @Override
+  @Transactional(readOnly = true)
   public OrderDto getOrder(Long orderId) {
-    return orderRepository
-        .findById(orderId)
-        .map(this::convertToDto)
-        .orElseThrow(() -> new ResourceNotFoundException("No order found"));
+    Order order =
+        orderRepository
+            .findWithItemsByOrderId(orderId)
+            .orElseThrow(() -> new ResourceNotFoundException("No order found"));
+    return OrderMapper.toDto(order);
   }
 
   @Override
+  @Transactional(readOnly = true)
   public List<OrderDto> getUserOrders(Long userId) {
     List<Order> orders = orderRepository.findByUserId(userId);
-    return orders.stream().map(this::convertToDto).toList();
+    return orders.stream().map(OrderMapper::toDto).toList();
   }
 
   @Transactional

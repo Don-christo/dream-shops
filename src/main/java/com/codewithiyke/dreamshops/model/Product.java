@@ -24,15 +24,11 @@ public class Product {
   private String description;
 
   //  @ManyToOne(cascade = CascadeType.ALL)
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "category_id")
   private Category category;
 
-  @OneToMany(
-      mappedBy = "product",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Image> images;
 
   public Product(

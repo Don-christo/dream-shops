@@ -24,11 +24,7 @@ public class Cart {
 
   private BigDecimal totalAmount = BigDecimal.ZERO;
 
-  @OneToMany(
-      mappedBy = "cart",
-      cascade = CascadeType.ALL,
-      orphanRemoval = true,
-      fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<CartItem> items = new HashSet<>();
 
   @OneToOne
