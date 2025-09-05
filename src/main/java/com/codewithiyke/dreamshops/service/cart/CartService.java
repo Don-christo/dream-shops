@@ -18,6 +18,7 @@ public class CartService implements ICartService {
   private final CartItemRepository cartItemRepository;
 
   @Override
+  @Transactional(readOnly = true)
   public Cart getCart(Long id) {
     return cartRepository
         .findWithItemsById(id)
